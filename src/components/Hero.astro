@@ -1,0 +1,109 @@
+---
+const features = [
+  {
+    title: "सरल व्यवस्थापन",
+    description: "सजिलो र छिटो तरिकाले व्यापार व्यवस्थापन गर्नुहोस्",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+    </svg>`
+  },
+  {
+    title: "बिक्री र खरिद",
+    description: "सबै कारोबारको विवरण एकै ठाउँमा",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>`
+  },
+  {
+    title: "स्टक व्यवस्थापन",
+    description: "स्टकको अवस्था तत्काल जान्नुहोस्",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+    </svg>`
+  }
+];
+---
+
+<section class="bg-gradient-to-b from-white to-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="text-center">
+      <h1 class="text-5xl font-bold text-gray-900 mb-8">
+        खाता सबैको
+      </h1>
+      <p class="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+        व्यापार व्यवस्थापनको लागि एक सरल र शक्तिशाली समाधान। तपाईंको व्यापारलाई अझ राम्रो बनाउन हामीसँग जोडिनुहोस्।
+      </p>
+      <div class="flex justify-center gap-4">
+        <a href="/dashboard" class="bg-primary-600 text-white px-8 py-3 rounded-lg hover:bg-primary-700 transition-colors">
+          शुरु गर्नुहोस्
+        </a>
+        <a href="#features" class="bg-white text-primary-600 px-8 py-3 rounded-lg border border-primary-600 hover:bg-primary-50 transition-colors">
+          थप जान्नुहोस्
+        </a>
+      </div>
+    </div>
+
+    <div id="features" class="mt-20">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {features.map(feature => (
+          <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+            <div class="text-primary-600 mb-4" set:html={feature.icon} />
+            <h3 class="text-xl font-semibold mb-2">{feature.title}</h3>
+            <p class="text-gray-600">{feature.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="mt-20">
+      <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2">
+          <div class="p-8">
+            <h2 class="text-3xl font-bold mb-4">किन खाता सबैको?</h2>
+            <ul class="space-y-4">
+              <li class="flex items-start">
+                <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>सरल र सहज प्रयोगकर्ता इन्टरफेस</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>नेपाली भाषामा उपलब्ध</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>विस्तृत रिपोर्टिङ र विश्लेषण</span>
+              </li>
+            </ul>
+          </div>
+          <div class="bg-gradient-to-br from-primary-600 to-primary-700 p-8 text-white">
+            <h2 class="text-3xl font-bold mb-4">तथ्यांक</h2>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-4xl font-bold">१०००+</p>
+                <p class="text-sm opacity-80">सन्तुष्ट प्रयोगकर्ताहरू</p>
+              </div>
+              <div>
+                <p class="text-4xl font-bold">५०००+</p>
+                <p class="text-sm opacity-80">दैनिक कारोबारहरू</p>
+              </div>
+              <div>
+                <p class="text-4xl font-bold">९९.९%</p>
+                <p class="text-sm opacity-80">अपटाइम</p>
+              </div>
+              <div>
+                <p class="text-4xl font-bold">२४/७</p>
+                <p class="text-sm opacity-80">सहयोग उपलब्ध</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  contact   String
+  sales     Sale[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("customers")
+}
+
+model Dealer {
+  id        String     @id @default(uuid())
+  name      String
+  address   String
+  contact   String
+  purchases Purchase[]
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@map("dealers")
+}
+
+model Stock {
+  id           String     @id @default(uuid())
+  name         String
+  quantity     Int
+  unit         String
+  unitPrice    Decimal    @map("unit_price") @db.Decimal(10,2)
+  reorderPoint Int        @default(0) @map("reorder_point")
+  saleItems    SaleItem[]
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  @@map("stocks")
+}
+
+model Sale {
+  id         String     @id @default(uuid())
+  date       DateTime   @default(now())
+  customer   Customer   @relation(fields: [customerId], references: [id])
+  customerId String     @map("customer_id")
+  items      SaleItem[]
+  total      Decimal    @db.Decimal(10,2)
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id       String  @id @default(uuid())
+  sale     Sale    @relation(fields: [saleId], references: [id])
+  saleId   String  @map("sale_id")
+  stock    Stock   @relation(fields: [stockId], references: [id])
+  stockId  String  @map("stock_id")
+  quantity Int
+  price    Decimal @db.Decimal(10,2)
+  total    Decimal @db.Decimal(10,2)
+
+  @@map("sale_items")
+}
+
+model Purchase {
+  id         String         @id @default(uuid())
+  date       DateTime       @default(now())
+  dealer     Dealer         @relation(fields: [dealerId], references: [id])
+  dealerId   String        @map("dealer_id")
+  items      PurchaseItem[]
+  total      Decimal       @db.Decimal(10,2)
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+
+  @@map("purchases")
+}
+
+model PurchaseItem {
+  id         String   @id @default(uuid())
+  purchase   Purchase @relation(fields: [purchaseId], references: [id])
+  purchaseId String   @map("purchase_id")
+  name       String
+  quantity   Int
+  price      Decimal  @db.Decimal(10,2)
+  total      Decimal  @db.Decimal(10,2)
+
+  @@map("purchase_items")
+}

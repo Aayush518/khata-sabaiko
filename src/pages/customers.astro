@@ -1,0 +1,103 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { translations } from '../i18n/translations';
+import AddCustomerModal from '../components/AddCustomerModal.svelte';
+
+const lang = Astro.url.searchParams.get('lang') || 'ne';
+const t = translations[lang];
+---
+
+<Layout title={`खाता सबैको - ${t.nav.customers}`}>
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">{t.nav.customers}</h1>
+      <button id="addCustomerBtn" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700">
+        {t.common.add}
+      </button>
+    </div>
+    
+    <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {t.common.name}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {t.common.address}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {t.common.contact}
+            </th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {t.common.actions}
+            </th>
+          </tr>
+        </thead>
+        <tbody id="customersList" class="bg-white divide-y divide-gray-200">
+          <!-- Customers will be loaded here -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <AddCustomerModal client:load />
+</Layout>
+
+<script>
+  import { db } from '../lib/db';
+  
+  // Load customers
+  function loadCustomers() {
+    const customers = db.getCustomers();
+    const tbody = document.getElementById('customersList');
+    if (!tbody) return;
+    
+    tbody.innerHTML = customers.map(customer => `
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${customer.name}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.address}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.contact}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+          <button class="text-primary-600 hover:text-primary-900 mr-3" onclick="editCustomer(${customer.id})">
+            Edit
+          </button>
+          <button class="text-red-600 hover:text-red-900" onclick="deleteCustomer(${customer.id})">
+            Delete
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Initial load
+  loadCustomers();
+
+  // Add customer button handler
+  document.getElementById('addCustomerBtn')?.addEventListener('click', () => {
+    const modal = document.querySelector('add-customer-modal');
+    if (modal) {
+      modal.show = true;
+    }
+  });
+
+  // Make functions available globally
+  window.editCustomer = (id) => {
+    const customers = db.getCustomers();
+    const customer = customers.find(c => c.id === id);
+    if (!customer) return;
+    
+    const modal = document.querySelector('add-customer-modal');
+    if (modal) {
+      modal.customer = customer;
+      modal.show = true;
+    }
+  };
+
+  window.deleteCustomer = (id) => {
+    if (confirm('Are you sure you want to delete this customer?')) {
+      db.deleteCustomer(id);
+      loadCustomers();
+    }
+  };
+</script>

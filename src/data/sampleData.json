@@ -1,0 +1,84 @@
+{
+  "customers": [
+    {
+      "id": 1,
+      "name": "Ram Bahadur",
+      "address": "Kathmandu",
+      "contact": "9841234567",
+      "totalPurchases": 125000
+    },
+    {
+      "id": 2,
+      "name": "Sita Sharma",
+      "address": "Lalitpur",
+      "contact": "9847654321",
+      "totalPurchases": 89000
+    }
+  ],
+  "dealers": [
+    {
+      "id": 1,
+      "name": "Shyam Supplies",
+      "address": "Bhaktapur",
+      "contact": "9845678901",
+      "totalSales": 450000
+    },
+    {
+      "id": 2,
+      "name": "Krishna Traders",
+      "address": "Patan",
+      "contact": "9840123456",
+      "totalSales": 380000
+    }
+  ],
+  "stocks": [
+    {
+      "id": 1,
+      "name": "Rice Basmati",
+      "quantity": 500,
+      "unit": "kg",
+      "unitPrice": 120,
+      "reorderPoint": 100
+    },
+    {
+      "id": 2,
+      "name": "Wheat Flour",
+      "quantity": 300,
+      "unit": "kg",
+      "unitPrice": 85,
+      "reorderPoint": 75
+    }
+  ],
+  "sales": [
+    {
+      "id": 1,
+      "date": "2024-01-20",
+      "customerName": "Ram Bahadur",
+      "items": [
+        {
+          "name": "Rice Basmati",
+          "quantity": 50,
+          "price": 120,
+          "total": 6000
+        }
+      ],
+      "total": 6000
+    }
+  ],
+  "purchases": [
+    {
+      "id": 1,
+      "date": "2024-01-19",
+      "dealerName": "Shyam Supplies",
+      "items": [
+        {
+          "name": "Rice Basmati",
+          "quantity": 200,
+          "price": 100,
+          "total": 20000
+        }
+      ],
+      "total": 20000
+    }
+  ]
+}

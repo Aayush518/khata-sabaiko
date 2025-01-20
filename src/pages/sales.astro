@@ -1,0 +1,185 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { translations } from '../i18n/translations';
+import SaleForm from '../components/SaleForm.svelte';
+import { prisma } from '../lib/db';
+
+const lang = Astro.url.searchParams.get('lang') || 'ne';
+const t = translations[lang];
+
+// Fetch initial data
+const customers = await prisma.customer.findMany();
+const stocks = await prisma.stock.findMany();
+const sales = await prisma.sale.findMany({
+  include: {
+    customer: true,
+    items: {
+      include: {
+        stock: true
+      }
+    }
+  },
+  orderBy: {
+    date: 'desc'
+  }
+});
+---
+
+<Layout title={`खाता सबैको - ${t.nav.sales}`}>
+  <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white dark:bg-dark-surface rounded-lg shadow-lg p-6">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-dark-text">{t.nav.sales}</h1>
+        <button id="addSale" class="btn btn-primary">
+          {t.common.add}
+        </button>
+      </div>
+
+      <div class="mb-6">
+        <div class="flex gap-4 mb-4">
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder={t.common.search} 
+            class="flex-1 rounded-lg border-gray-300 dark:bg-dark-bg dark:text-dark-text dark:border-dark-border"
+          >
+          <select 
+            id="filterDate" 
+            class="rounded-lg border-gray-300 dark:bg-dark-bg dark:text-dark-text dark:border-dark-border"
+          >
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-dark-border">
+          <thead class="bg-gray-50 dark:bg-dark-bg">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-text uppercase tracking-wider">
+                {t.common.date}
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-text uppercase tracking-wider">
+                {t.common.name}
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-text uppercase tracking-wider">
+                Items
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-dark-text uppercase tracking-wider">
+                {t.common.total}
+              </th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text uppercase tracking-wider">
+                {t.common.actions}
+              </th>
+            </tr>
+          </thead>
+          <tbody id="salesList" class="bg-white dark:bg-dark-surface divide-y divide-gray-200 dark:divide-dark-border">
+            {sales.map(sale => (
+              <tr class="hover:bg-gray-50 dark:hover:bg-dark-bg/50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-dark-text">
+                  {new Date(sale.date).toLocaleDateString()}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-dark-text">
+                  {sale.customer.name}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500 dark:text-dark-text">
+                  {sale.items.map(item => `${item.stock.name} (${item.quantity})`).join(', ')}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-dark-text">
+                  रू {sale.total.toLocaleString()}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button class="text-primary-600 dark:text-primary-400 hover:text-primary-900 mr-3">
+                    View
+                  </button>
+                  <button class="text-red-600 dark:text-red-400 hover:text-red-900">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div id="saleFormModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-dark-surface rounded-lg w-full max-w-4xl">
+      <SaleForm 
+        client:load 
+        customers={customers} 
+        stocks={stocks}
+      />
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Show/hide sale form modal
+  const addSaleBtn = document.getElementById('addSale');
+  const saleFormModal = document.getElementById('saleFormModal');
+  
+  addSaleBtn?.addEventListener('click', () => {
+    saleFormModal?.classList.remove('hidden');
+  });
+  
+  // Close modal when clicking outside
+  saleFormModal?.addEventListener('click', (e) => {
+    if (e.target === saleFormModal) {
+      saleFormModal.classList.add('hidden');
+    }
+  });
+  
+  // Handle search and filtering
+  const searchInput = document.getElementById('searchInput');
+  const filterDate = document.getElementById('filterDate');
+  
+  searchInput?.addEventListener('input', filterSales);
+  filterDate?.addEventListener('change', filterSales);
+  
+  function filterSales() {
+    const searchTerm = (searchInput as HTMLInputElement)?.value.toLowerCase();
+    const dateFilter = (filterDate as HTMLSelectElement)?.value;
+    
+    const rows = document.querySelectorAll('#salesList tr');
+    
+    rows.forEach(row => {
+      const date = row.querySelector('td')?.textContent || '';
+      const name = row.querySelector('td:nth-child(2)')?.textContent?.toLowerCase() || '';
+      const items = row.querySelector('td:nth-child(3)')?.textContent?.toLowerCase() || '';
+      
+      let showRow = true;
+      
+      // Apply search filter
+      if (searchTerm) {
+        showRow = name.includes(searchTerm) || items.includes(searchTerm);
+      }
+      
+      // Apply date filter
+      if (showRow && dateFilter !== 'all') {
+        const saleDate = new Date(date);
+        const today = new Date();
+        
+        switch (dateFilter) {
+          case 'today':
+            showRow = saleDate.toDateString() === today.toDateString();
+            break;
+          case 'week':
+            const weekAgo = new Date(today.setDate(today.getDate() - 7));
+            showRow = saleDate >= weekAgo;
+            break;
+          case 'month':
+            showRow = saleDate.getMonth() === today.getMonth() &&
+                     saleDate.getFullYear() === today.getFullYear();
+            break;
+        }
+      }
+      
+      row.classList.toggle('hidden', !showRow);
+    });
+  }
+</script>

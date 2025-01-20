@@ -1,0 +1,116 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import { translations } from '../i18n/translations';
+
+const lang = Astro.url.searchParams.get('lang') || 'ne';
+const t = translations[lang];
+---
+
+<Layout title={`खाता सबैको - ${t.nav.dealers}`}>
+  <Navbar />
+  
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">{t.nav.dealers}</h1>
+      <button id="addDealer" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700">
+        {t.common.add}
+      </button>
+    </div>
+    
+    <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {t.common.name}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {t.common.address}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {t.common.contact}
+            </th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {t.common.actions}
+            </th>
+          </tr>
+        </thead>
+        <tbody id="dealersList" class="bg-white divide-y divide-gray-200">
+          <!-- Dealers will be loaded here -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { db } from '../lib/db';
+  
+  // Load dealers
+  function loadDealers() {
+    const dealers = db.getDealers();
+    const tbody = document.getElementById('dealersList');
+    if (!tbody) return;
+    
+    tbody.innerHTML = dealers.map(dealer => `
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${dealer.name}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${dealer.address}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${dealer.contact}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+          <button class="text-primary-600 hover:text-primary-900 mr-3" onclick="editDealer(${dealer.id})">
+            Edit
+          </button>
+          <button class="text-red-600 hover:text-red-900" onclick="deleteDealer(${dealer.id})">
+            Delete
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Initial load
+  loadDealers();
+
+  // Add dealer button handler
+  document.getElementById('addDealer')?.addEventListener('click', () => {
+    const name = prompt('Enter dealer name:');
+    if (!name) return;
+    
+    const address = prompt('Enter dealer address:');
+    if (!address) return;
+    
+    const contact = prompt('Enter dealer contact:');
+    if (!contact) return;
+    
+    db.addDealer({ name, address, contact });
+    loadDealers();
+  });
+
+  // Make functions available globally
+  window.editDealer = (id) => {
+    const dealers = db.getDealers();
+    const dealer = dealers.find(d => d.id === id);
+    if (!dealer) return;
+    
+    const name = prompt('Enter new name:', dealer.name);
+    if (!name) return;
+    
+    const address = prompt('Enter new address:', dealer.address);
+    if (!address) return;
+    
+    const contact = prompt('Enter new contact:', dealer.contact);
+    if (!contact) return;
+    
+    db.updateDealer(id, { name, address, contact });
+    loadDealers();
+  };
+
+  window.deleteDealer = (id) => {
+    if (confirm('Are you sure you want to delete this dealer?')) {
+      db.deleteDealer(id);
+      loadDealers();
+    }
+  };
+</script>
